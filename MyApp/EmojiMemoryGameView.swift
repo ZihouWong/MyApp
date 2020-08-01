@@ -28,6 +28,7 @@ struct EmojiMemoryGameView: View {
     }
 }
 
+
 struct CardView: View {
     var card: MemoryGame<String>.Card
     
@@ -35,39 +36,32 @@ struct CardView: View {
         GeometryReader { geometry in
             self.body(for: geometry.size)
         }
-        
     }
     
+    @ViewBuilder
     private func body(for size: CGSize) -> some View {
-        ZStack {
-            if card.isFaceUp {
-                RoundedRectangle(cornerRadius: cornerRadius).fill(Color.orange)
-                RoundedRectangle(cornerRadius: cornerRadius).stroke(lineWidth: edgeLineWidth)
+        if card.isFaceUp || !card.isMatched {
+            ZStack {
+                Pie(startAngle: Angle.degrees(0 - 90), endAngle: Angle.degrees(120 - 90), clockwise: true)
+                    .padding(5).opacity(0.9)
                 Text(card.content)
-            }
-            else {
-                if !card.isMatched {
-                   RoundedRectangle(cornerRadius: 10.0).fill()
-                }
-            }
+                    .font(Font.system(size: fontSize(for: size)))
+            }.cardify(isFaceUp: card.isFaceUp)
         }
-        .font(Font.system(size: fontSize(for: size)))
-        .padding(5)
     }
-    
+
     // MARK: - Drawing Constants
     
-    private let cornerRadius: CGFloat = 10
-    private let edgeLineWidth: CGFloat = 3
-
     private func fontSize(for size: CGSize) -> CGFloat {
-        min(size.width, size.height) * 0.75
+        min(size.width, size.height) * 0.65
     }
 }
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiMemoryGameView(emojiMemoryGame: EmojiMemoryGame())
+        let game = EmojiMemoryGame()
+        game.choose(card: game.cards[0])
+        return EmojiMemoryGameView(emojiMemoryGame: game)
     }
 }
+
